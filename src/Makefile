@@ -6,6 +6,8 @@ SOURCES:=$(shell find $(SOURCEDIR) -name '*.cpp')
 LIBFOLDERS=$(shell ls ./lib)
 LIBSL=$(foreach D,$(LIBFOLDERS),-L./lib/$D/lib/)
 LIBSLNS=$(foreach D,$(LIBFOLDERS),-l$D_static)
+LIBSRP=$(foreach D,$(LIBFOLDERS),-Wl,-rpath=./lib/$D/lib)
+
 LIBSLND=$(foreach D,$(LIBFOLDERS),-l$D)
 LIBSCF=$(foreach D,$(LIBFOLDERS),-I./lib/$D/include/)
 LIBSS=$(foreach D,$(LIBFOLDERS),./lib/$D/lib/lib$D.a)
@@ -45,6 +47,7 @@ $(BIND): $(OBJECTS) $(LIBSD)
 	$(CXX)\
 		$(CXXFLAGS)\
 		$(OBJECTS)\
+		$(LIBSRP)\
 		$(LDFLAGSD)\
 		-o $(BIND)
 
@@ -75,6 +78,7 @@ test:
 	@echo $(LIBSS)
 	@echo $(LIBSLN)
 	@echo $(LIBSL)
+	@echo $(LIBSRP)
 clean:
 	$(foreach D,$(LIBFOLDERS),make -C ./lib/$D clean;)
 	rm -r ./bin/*
