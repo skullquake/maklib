@@ -4,10 +4,10 @@ SOURCEDIR=./src
 SOURCES:=$(shell find $(SOURCEDIR) -name '*.cpp')
 
 MACHINE=$(shell $(CXX) -dumpmachine)
-ifneq (,$(findstring MINGW,$(MACHINE)))
-	SOEXT="so"
-else
+ifneq (,$(findstring mingw,$(MACHINE)))
 	SOEXT="dll"
+else
+	SOEXT="so"
 endif
 
 LIBFOLDERS=$(shell ls ./lib)
