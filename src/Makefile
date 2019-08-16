@@ -5,7 +5,8 @@ SOURCES:=$(shell find $(SOURCEDIR) -name '*.cpp')
 
 LIBFOLDERS=$(shell ls ./lib)
 LIBSL=$(foreach D,$(LIBFOLDERS),-L./lib/$D/lib/)
-LIBSLN=$(foreach D,$(LIBFOLDERS),-l$D_static)
+LIBSLNS=$(foreach D,$(LIBFOLDERS),-l$D_static)
+LIBSLND=$(foreach D,$(LIBFOLDERS),-l$D)
 LIBSCF=$(foreach D,$(LIBFOLDERS),-I./lib/$D/include/)
 LIBSS=$(foreach D,$(LIBFOLDERS),./lib/$D/lib/lib$D.a)
 LIBSD=$(foreach D,$(LIBFOLDERS),./lib/$D/lib/lib$D.so)
@@ -16,25 +17,36 @@ CXXFLAGS=\
 	-I./include\
 	$(LIBSCF)\
 	$(LIBSL)
-LDFLAGS=\
-       $(LIBSLN)
-BIN=./bin/a
+LDFLAGSS=\
+       $(LIBSLNS)
+LDFLAGSD=\
+       $(LIBSLND)
+BINS=./bin/a_static
+BIND=./bin/a_shared
 
-all: $(LIBSS) $(LIBSD) $(BIN)
+all: $(LIBSS) $(LIBSD) $(BINS) $(BIND)
 
 $(LIBSS):
 	make -C $(@D)/..
 $(LIBSD):
 	make -C $(@D)/..
 
-$(BIN): $(OBJECTS) $(LIBSS) $(LIBSD) 
+$(BINS): $(OBJECTS) $(LIBSS) 
 	@mkdir -p $(@D)
 	@printf "generating $@...\n"
 	$(CXX)\
 		$(CXXFLAGS)\
 		$(OBJECTS)\
-		$(LDFLAGS)\
-		-o $(BIN)
+		$(LDFLAGSS)\
+		-o $(BINS)
+$(BIND): $(OBJECTS) $(LIBSD) 
+	@mkdir -p $(@D)
+	@printf "generating $@...\n"
+	$(CXX)\
+		$(CXXFLAGS)\
+		$(OBJECTS)\
+		$(LDFLAGSD)\
+		-o $(BIND)
 
 $(BUILDDIR)/%.o: %.cpp
 	@printf "generating $@...\n"
@@ -47,10 +59,17 @@ $(BUILDDIR)/%.o: %.cpp
 		$(LDFLAGS)\
 		-o $@
 .phony:\
+	runs\
+	rund\
 	run\
 	clean
+runs:
+	$(BINS)
+rund:
+	$(BIND)
 run:
-	$(BIN)
+	$(BINS)
+	$(BIND)
 test:
 	@echo $(LIBSD)
 	@echo $(LIBSS)
