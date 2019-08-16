@@ -1,8 +1,10 @@
-#include"uuid/uuid.h"
+#include"foo.h"
+#include"bar.h"
+#include"baz.h"
 #include<iostream>
 int main(int argc,char** argv){
-	cpputils::UUID uuid;
-	for(int i=0;i<8;i++)
-		std::cout<<cpputils::UUID::generateUUID()<<std::endl;
+	foo::Foo foo;
+	bar::Bar bar;
+	baz::Baz baz;
 	return 0;
 }

@@ -28,7 +28,6 @@ $(LIBSD):
 	make -C $(@D)/..
 
 $(BIN): $(OBJECTS) $(LIBSS) $(LIBSD) 
-	@make -C ./lib/cpputils
 	@mkdir -p $(@D)
 	@printf "generating $@...\n"
 	$(CXX)\
