@@ -18,8 +18,8 @@ DYBIN=./bin/a_shared
 RPATH=./lib
 SBIN=./bin/a_static
 BASENAME=$(shell basename `pwd`)
-DYLIB=./lib/lib$(BASENAME).dll
 DYLIB=./lib/lib$(BASENAME).so
+DYLIB=./lib/lib$(BASENAME).dll
 SLIB=./lib/lib$(BASENAME)_static.a
 all:\
 	$(DYLIB)\

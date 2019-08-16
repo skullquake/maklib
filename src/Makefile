@@ -3,6 +3,13 @@ BUILDDIR=bin
 SOURCEDIR=./src
 SOURCES:=$(shell find $(SOURCEDIR) -name '*.cpp')
 
+MACHINE=$(shell $(CXX) -dumpmachine)
+ifneq (,$(findstring MINGW,$(MACHINE)))
+	SOEXT="so"
+else
+	SOEXT="dll"
+endif
+
 LIBFOLDERS=$(shell ls ./lib)
 LIBSL=$(foreach D,$(LIBFOLDERS),-L./lib/$D/lib/)
 LIBSLNS=$(foreach D,$(LIBFOLDERS),-l$D_static)
@@ -79,6 +86,8 @@ test:
 	@echo $(LIBSLN)
 	@echo $(LIBSL)
 	@echo $(LIBSRP)
+	@echo $(MACHINE)
+	@echo $(SOEXT)
 clean:
 	$(foreach D,$(LIBFOLDERS),make -C ./lib/$D clean;)
 	rm -r ./bin/*
