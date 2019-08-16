@@ -1,110 +1,62 @@
 CXX=g++
-AR=ar
-SOURCEDIR=./src/libcpputils
+BUILDDIR=bin
+SOURCEDIR=./src
 SOURCES:=$(shell find $(SOURCEDIR) -name '*.cpp')
-DYBUILDDIR=bin/shared
-SBUILDDIR=bin/static
-DYLIBOBJS:=$(addprefix $(DYBUILDDIR)/,$(SOURCES:%.cpp=%.o))
-SLIBOBJS:=$(addprefix $(SBUILDDIR)/,$(SOURCES:%.cpp=%.o))
-SRCDRV=./src/a.cpp
-ifeq ($(PREFIX),)
-    PREFIX := /usr/local
-endif
-CXXFLAGS=\
-	-Wall\
-	-Werror\
-	-I./include/libcpputils
-LDFLAGS=
-DYBIN=./bin/a_shared
-RPATH=./lib
-SBIN=./bin/a_static
-DYLIB=./lib/libcpputils.dll
-DYLIB=./lib/libcpputils.so
-SLIB=./lib/libcpputils_static.a
-all:\
-	$(SBIN)\
-	$(DYBIN)
-$(DYBIN):$(DYLIB) $(SRCDRV)
-	@mkdir -p $(@D)
-	@$(CXX)\
-		$(CXXFLAGS)\
-		-L./lib\
-		-Wl,-rpath=$(RPATH)\
-		$(SRCDRV)\
-		$(LDFLAGS)\
-		-lcpputils\
-		-o $(DYBIN)
-$(SBIN):$(SLIB) $(SRCDRV)
-	@mkdir -p $(@D)
-	@$(CXX)\
-		$(CXXFLAGS)\
-		-L./lib\
-		$(SRCDRV)\
-		$(LDFLAGS)\
-		$(SLIB)\
-		-o $(SBIN)
-$(DYLIB): $(DYLIBOBJS)
-	@mkdir -p $(@D)
-	@printf "generating $@...\n"
-	@$(CXX)\
-		$(CXXFLAGS)\
-		-shared\
-		$(DYLIBOBJS)\
-		-o $(DYLIB)
-$(SLIB): $(SLIBOBJS)
-	@mkdir -p $(@D)
-	@printf "generating $@...\n"
-	@$(AR)\
-		rcs\
-		$(SLIB)\
-		$(SLIBOBJS)
-$(DYBUILDDIR)/%.o: %.cpp
-	@printf "generating $@...\n"
-	@mkdir -p $(@D)
-	@$(CXX)\
-		$(CXXFLAGS)\
-		$(LDFLAGS)\
-		-fpic\
-		-I$(HEADERDIR)\
-		-I$(dir $<)\
-		-c $<\
-		-o $@
-$(SBUILDDIR)/%.o: %.cpp
-	@printf "generating $@...\n"
-	@mkdir -p $(@D)
-	@$(CXX)\
-		$(CXXFLAGS)\
-		$(LDFLAGS)\
-		-I$(HEADERDIR)\
-		-I$(dir $<)\
-		-c $<\
-		-o $@
 
+LIBFOLDERS=$(shell ls ./lib)
+LIBSL=$(foreach D,$(LIBFOLDERS),-L./lib/$D/lib/)
+LIBSLN=$(addprefix -l,$(LIBFOLDERS))
+LIBSCF=$(foreach D,$(LIBFOLDERS),-I./lib/$D/include/)
+LIBSS=$(foreach D,$(LIBFOLDERS),./lib/$D/lib/lib$D.a)
+LIBSD=$(foreach D,$(LIBFOLDERS),./lib/$D/lib/lib$D.so)
+
+
+OBJECTS=$(addprefix $(BUILDDIR)/,$(SOURCES:%.cpp=%.o))
+CXXFLAGS=\
+	-I./include\
+	$(LIBSCF)\
+	$(LIBSL)
+LDFLAGS=\
+       $(LIBSLN)
+BIN=./bin/a
+
+all: $(LIBSS) $(LIBSD) $(BIN)
+
+$(LIBSS):
+	make -C $(@D)/..
+$(LIBSD):
+	make -C $(@D)/..
+
+$(BIN): $(OBJECTS) $(LIBSS) $(LIBSD) 
+	@make -C ./lib/cpputils
+	@mkdir -p $(@D)
+	@printf "generating $@...\n"
+	$(CXX)\
+		$(CXXFLAGS)\
+		$(OBJECTS)\
+		$(LDFLAGS)\
+		-o $(BIN)
+
+$(BUILDDIR)/%.o: %.cpp
+	@printf "generating $@...\n"
+	@mkdir -p $(@D)
+	$(CXX)\
+		$(CXXFLAGS)\
+		-I$(HEADERDIR)\
+		-I$(dir $<)\
+		-c $<\
+		$(LDFLAGS)\
+		-o $@
 .phony:\
-	runshared\
-	runstatic\
-	clean\
-	install\
-	distclean
-runshared:
-	@export PATH=./lib:$$PATH:$$PATH;$(DYBIN) 
-runstatic:
-	@$(SBIN) 
+	run\
+	clean
 run:
-	@$(SBIN) 
-	@export PATH=./lib:$$PATH:$$PATH;$(DYBIN) 
-install: $(DYLIB) $(SLIB)
-	install -d $(DESTDIR)$(PREFIX)/lib/
-	install -m 644 $(DYLIB) $(DESTDIR)$(PREFIX)/lib/
-	install -m 644 $(SLIB) $(DESTDIR)$(PREFIX)/lib/
-	install -d $(DESTDIR)$(PREFIX)/include/
-	install -d $(DESTDIR)$(PREFIX)/lib/pkg-config
-	install -m 644 ./src/pkg-config/*.pc $(DESTDIR)$(PREFIX)/lib/pkgconfig
-	cp -r ./include/* $(DESTDIR)$(PREFIX)/include/
+	$(BIN)
+test:
+	@echo $(LIBSD)
+	@echo $(LIBSS)
+	@echo $(LIBSLN)
+	@echo $(LIBSL)
 clean:
-	@rm -r ./bin ./lib
-distclean:
-	rm\
-		-r\
-		$(DYBUILDDIR)\
-		$(SBUILDDIR)
+	$(foreach D,$(LIBFOLDERS),make -C ./lib/$D clean;)
+	rm -r ./bin/*
