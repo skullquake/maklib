@@ -16,8 +16,10 @@ CXXFLAGS=\
 	-I./include/libcpputils
 LDFLAGS=
 DYBIN=./bin/a_shared
+RPATH=./lib
 SBIN=./bin/a_static
 DYLIB=./lib/libcpputils.dll
+DYLIB=./lib/libcpputils.so
 SLIB=./lib/libcpputils_static.a
 all:\
 	$(SBIN)\
@@ -27,6 +29,7 @@ $(DYBIN):$(DYLIB) $(SRCDRV)
 	@$(CXX)\
 		$(CXXFLAGS)\
 		-L./lib\
+		-Wl,-rpath=$(RPATH)\
 		$(SRCDRV)\
 		$(LDFLAGS)\
 		-lcpputils\
