@@ -32,7 +32,11 @@ LDFLAGSD=\
        $(LIBSLND)
 BINS=./bin/a_static
 $(foreach D,$(LIBFOLDERS),$(eval P := $(P)./lib/$(D)/lib:))
-_PATH=$(P)$$PATH
+ifneq (,$(findstring mingw,$(MACHINE)))
+	_PATH=$(P)$$PATH
+else
+	_PATH=$$PATH
+endif
 BIND=./bin/a_shared
 
 all: $(LIBSS) $(LIBSD) $(BINS) $(BIND)
@@ -79,7 +83,6 @@ runs:
 	$(BINS)
 rund:
 	PATH=$(_PATH) $(BIND)
-
 run:
 	$(BINS)
 	$(BIND)
