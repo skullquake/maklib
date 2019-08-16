@@ -31,6 +31,8 @@ LDFLAGSS=\
 LDFLAGSD=\
        $(LIBSLND)
 BINS=./bin/a_static
+$(foreach D,$(LIBFOLDERS),$(eval P := $(P)./lib/$(D)/lib:))
+_PATH=$(P)$$PATH
 BIND=./bin/a_shared
 
 all: $(LIBSS) $(LIBSD) $(BINS) $(BIND)
@@ -75,8 +77,10 @@ $(BUILDDIR)/%.o: %.cpp
 	clean
 runs:
 	$(BINS)
+P=""
 rund:
-	$(BIND)
+	PATH=$(_PATH) $(BIND)
+
 run:
 	$(BINS)
 	$(BIND)
@@ -88,6 +92,7 @@ test:
 	@echo $(LIBSRP)
 	@echo $(MACHINE)
 	@echo $(SOEXT)
+	@echo $(_PATH)
 clean:
 	$(foreach D,$(LIBFOLDERS),make -C ./lib/$D clean;)
 	rm -r ./bin/*

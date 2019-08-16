@@ -18,8 +18,14 @@ DYBIN=./bin/a_shared
 RPATH=./lib
 SBIN=./bin/a_static
 BASENAME=$(shell basename `pwd`)
-DYLIB=./lib/lib$(BASENAME).so
-DYLIB=./lib/lib$(BASENAME).dll
+MACHINE=$(shell $(CXX) -dumpmachine)
+ifneq (,$(findstring mingw,$(MACHINE)))
+	SOEXT="dll"
+else
+	SOEXT="so"
+endif
+
+DYLIB=./lib/lib$(BASENAME).$(SOEXT)
 SLIB=./lib/lib$(BASENAME)_static.a
 all:\
 	$(DYLIB)\
