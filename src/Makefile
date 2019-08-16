@@ -77,7 +77,6 @@ $(BUILDDIR)/%.o: %.cpp
 	clean
 runs:
 	$(BINS)
-P=""
 rund:
 	PATH=$(_PATH) $(BIND)
 
