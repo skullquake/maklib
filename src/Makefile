@@ -5,7 +5,7 @@ SOURCES:=$(shell find $(SOURCEDIR) -name '*.cpp')
 
 LIBFOLDERS=$(shell ls ./lib)
 LIBSL=$(foreach D,$(LIBFOLDERS),-L./lib/$D/lib/)
-LIBSLN=$(addprefix -l,$(LIBFOLDERS))
+LIBSLN=$(foreach D,$(LIBFOLDERS),-l$D_static)
 LIBSCF=$(foreach D,$(LIBFOLDERS),-I./lib/$D/include/)
 LIBSS=$(foreach D,$(LIBFOLDERS),./lib/$D/lib/lib$D.a)
 LIBSD=$(foreach D,$(LIBFOLDERS),./lib/$D/lib/lib$D.so)

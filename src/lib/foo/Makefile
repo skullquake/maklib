@@ -20,7 +20,7 @@ SBIN=./bin/a_static
 BASENAME=$(shell basename `pwd`)
 DYLIB=./lib/lib$(BASENAME).dll
 DYLIB=./lib/lib$(BASENAME).so
-SLIB=./lib/lib$(BASENAME).a
+SLIB=./lib/lib$(BASENAME)_static.a
 all:\
 	$(DYLIB)\
 	$(SLIB)
